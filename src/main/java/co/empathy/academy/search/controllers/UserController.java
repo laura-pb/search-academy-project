@@ -9,12 +9,15 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
@@ -85,15 +88,32 @@ public class UserController {
 
     @Operation(summary = "Delete a user by its id")
     @Parameter(name = "id", description = "Id of the user to be deleted")
-    @DeleteMapping(value = "/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "User deleted", content = @Content),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
             @ApiResponse(responseCode = "400", description = "Invalid id, it must be an integer", content = @Content)
     })
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
         ResponseEntity response = ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted");
+        return response;
+    }
+
+    @Operation(summary = "Add users from a file with users in JSON format")
+    @Parameter(name = "file", description = "File with users in JSON format")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Users added. Returns list with users added.", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = User.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Invalid file", content = @Content)
+    })
+    @PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<List<User>> loadFile(@RequestParam MultipartFile file) throws IOException {
+        //TODO Return result with info of users that could not be added!!!
+        Pair<List<User>, Integer> fileLoadingResult = userService.loadFile(file);
+        ResponseEntity response = ResponseEntity.status(HttpStatus.CREATED).body(fileLoadingResult.getKey());
         return response;
     }
 
