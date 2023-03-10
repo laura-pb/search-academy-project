@@ -1,11 +1,20 @@
 package co.empathy.academy.search.services;
 
 import co.empathy.academy.search.entities.User;
+import co.empathy.academy.search.exceptions.InvalidJsonFileException;
 import co.empathy.academy.search.exceptions.UserAlreadyExistsException;
 import co.empathy.academy.search.exceptions.UserNotFoundException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,5 +72,31 @@ public class UserServiceImpl implements UserService {
         users.replace(id, updatedUser);
 
         return updatedUser;
+    }
+
+    @Override
+    public ImmutablePair<List<User>, Integer> loadFile(MultipartFile file) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+
+        List<User> users;
+        try {
+            users = objectMapper.readValue(file.getInputStream(), new TypeReference<List<User>>(){});
+        } catch (JsonParseException|JsonMappingException ex) {
+            throw new InvalidJsonFileException();
+        }
+
+        List<User> addedUsers = new ArrayList<>();
+        int repeatedUsers = 0;
+        for (User user: users) {
+            try {
+                addUser(user);
+                addedUsers.add(user);
+            } catch (UserAlreadyExistsException ex) {
+                repeatedUsers += 1;
+            }
+        }
+
+        return new ImmutablePair<>(addedUsers, repeatedUsers);
     }
 }
