@@ -4,11 +4,16 @@ import co.empathy.academy.search.services.ElasticService;
 import co.empathy.academy.search.services.ElasticServiceImpl;
 import co.empathy.academy.search.services.elastic.ElasticRequest;
 import co.empathy.academy.search.services.elastic.ElasticRequestImpl;
+import org.jobrunr.jobs.mappers.JobMapper;
+import org.jobrunr.storage.InMemoryStorageProvider;
+import org.jobrunr.storage.StorageProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
-public class ElasticConfig {
+@EnableAsync
+public class MainConfig {
 
     @Bean
     public ElasticRequest elasticRequest() {
@@ -18,5 +23,13 @@ public class ElasticConfig {
     @Bean
     public ElasticService elasticService(ElasticRequest elasticRequest) {
         return new ElasticServiceImpl(elasticRequest);
+    }
+
+    // JobRunr in-memory data store.
+    @Bean
+    public StorageProvider storageProvider(JobMapper jobMapper) {
+        InMemoryStorageProvider storageProvider = new InMemoryStorageProvider();
+        storageProvider.setJobMapper(jobMapper);
+        return storageProvider;
     }
 }
