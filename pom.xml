@@ -68,6 +68,18 @@
 			<version>2.0.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.jobrunr</groupId>
+			<artifactId>jobrunr</artifactId>
+			<version>6.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jobrunr</groupId>
+			<artifactId>jobrunr-spring-boot-3-starter</artifactId>
+			<version>6.1.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -11,9 +11,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.jobrunr.jobs.annotations.Job;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +77,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ImmutablePair<List<User>, Integer> loadFile(MultipartFile file) throws IOException {
+    public ImmutablePair<List<User>, List<User>> loadFile(MultipartFile file) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 
@@ -87,16 +89,38 @@ public class UserServiceImpl implements UserService {
         }
 
         List<User> addedUsers = new ArrayList<>();
-        int repeatedUsers = 0;
+        List<User> repeatedUsers = new ArrayList<>();
         for (User user: users) {
             try {
                 addUser(user);
                 addedUsers.add(user);
             } catch (UserAlreadyExistsException ex) {
-                repeatedUsers += 1;
+                repeatedUsers.add(user);
             }
         }
 
         return new ImmutablePair<>(addedUsers, repeatedUsers);
+    }
+
+    @Override
+    @Job
+    public void loadAsyncFile(File file) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+
+        List<User> users;
+        try {
+            users = objectMapper.readValue(file, new TypeReference<List<User>>(){});
+        } catch (JsonParseException|JsonMappingException ex) {
+            throw new InvalidJsonFileException();
+        }
+
+        for (User user: users) {
+            try {
+                addUser(user);
+            } catch (UserAlreadyExistsException ex) {
+
+            }
+        }
     }
 }

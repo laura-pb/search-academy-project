@@ -3,6 +3,7 @@ package co.empathy.academy.search.controllers;
 import co.empathy.academy.search.entities.User;
 import co.empathy.academy.search.exceptions.UserNotFoundException;
 import co.empathy.academy.search.services.UserService;
+import co.empathy.academy.search.util.FileConversion;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jobrunr.scheduling.BackgroundJob;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,14 +19,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
@@ -112,9 +117,24 @@ public class UserController {
     @PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<List<User>> loadFile(@RequestParam MultipartFile file) throws IOException {
         //TODO Return result with info of users that could not be added!!!
-        Pair<List<User>, Integer> fileLoadingResult = userService.loadFile(file);
+        Pair<List<User>, List<User>> fileLoadingResult = userService.loadFile(file);
         ResponseEntity response = ResponseEntity.status(HttpStatus.CREATED).body(fileLoadingResult.getKey());
         return response;
+    }
+
+    @Operation(summary = "Add users from a file with users in JSON format. File processing is asynchronous")
+    @Parameter(name = "file", description = "File with users in JSON format")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "File uploaded.", content = @Content)
+    })
+    @PostMapping(value = "/asyncfiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity loadAsyncFile(@RequestParam MultipartFile file) throws IOException {
+        String fileId = UUID.randomUUID().toString();
+        File tempFile = FileConversion.convertMultipartToTempFile(file, fileId);
+
+        BackgroundJob.enqueue(() -> userService.loadAsyncFile(tempFile));
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(fileId);
     }
 
 }
