@@ -129,12 +129,11 @@ public class UserController {
     })
     @PostMapping(value = "/asyncfiles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity loadAsyncFile(@RequestParam MultipartFile file) throws IOException {
-        String fileId = UUID.randomUUID().toString();
-        File tempFile = FileConversion.convertMultipartToTempFile(file, fileId);
+        File tempFile = FileConversion.convertMultipartToTempFile(file);
 
         BackgroundJob.enqueue(() -> userService.loadAsyncFile(tempFile));
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(fileId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
 }
