@@ -1,9 +1,11 @@
 package co.empathy.academy.search.services;
 
+import co.empathy.academy.search.entities.Movie;
 import co.empathy.academy.search.services.elastic.ElasticRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 public class ElasticServiceImpl implements ElasticService{
@@ -14,16 +16,12 @@ public class ElasticServiceImpl implements ElasticService{
         this.elasticRequest = elasticRequest;
     }
 
-    @Override
-    public String getClusterName() throws IOException {
-        return elasticRequest.getClusterName();
-    }
 
     @Override
-    public String search(String query) {
-        if (!query.isBlank()) {
-            return elasticRequest.executeQuery(query);
-        }
-        return "";
+    public void indexIMDbDocs(List<Movie> movies) throws IOException {
+        String indexName = "movies";
+        elasticRequest.createIndex(indexName);
+        elasticRequest.bulkIndexMovies(movies, indexName);
+
     }
 }

@@ -1,9 +1,13 @@
 package co.empathy.academy.search.services.elastic;
 
+import co.empathy.academy.search.entities.Movie;
+
 import java.io.IOException;
+import java.util.List;
 
 public interface ElasticRequest {
-    String getClusterName() throws IOException;
 
-    String executeQuery(String query);
+    void createIndex(String indexName) throws IOException;
+
+    void bulkIndexMovies(List<Movie> movies, String indexName) throws IOException;
 }

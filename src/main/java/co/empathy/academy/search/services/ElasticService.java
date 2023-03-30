@@ -1,9 +1,10 @@
 package co.empathy.academy.search.services;
 
+import co.empathy.academy.search.entities.Movie;
+
 import java.io.IOException;
+import java.util.List;
 
 public interface ElasticService {
-    String getClusterName() throws IOException;
-
-    String search(String query);
+    void indexIMDbDocs(List<Movie> movies) throws IOException;
 }

@@ -41,18 +41,15 @@ public class IndexController {
             @ApiResponse(responseCode = "500", description = "Unexpected problem reading the file", content = @Content)
     })
     @PostMapping(value = "", consumes = {"multipart/form-data"})
-    public ResponseEntity indexIMDbFiles(@RequestParam Optional<MultipartFile> basics,
-                               @RequestParam Optional<MultipartFile> akas,
-                               @RequestParam Optional<MultipartFile> ratings) {
-        Optional<File> basicsFile = basics.map(file -> Optional.of(FileConversion.convertMultipartToTempFile(file)))
-                .orElseGet( () -> Optional.empty());
-        Optional<File> akasFile = akas.map(file -> Optional.of(FileConversion.convertMultipartToTempFile(file)))
-                .orElseGet( () -> Optional.empty());
-        Optional<File> ratingsFile = ratings.map(file -> Optional.of(FileConversion.convertMultipartToTempFile(file)))
-                .orElseGet( () -> Optional.empty());
+    public ResponseEntity indexIMDbFiles(@RequestParam MultipartFile basics,
+                               @RequestParam MultipartFile akas,
+                               @RequestParam MultipartFile ratings) throws IOException {
+        File basicsFile = FileConversion.convertMultipartToTempFile(basics);
+        File akasFile = FileConversion.convertMultipartToTempFile(akas);
+        File ratingsFile = FileConversion.convertMultipartToTempFile(ratings);
 
-        //BackgroundJob.enqueue(() -> indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile));
-        indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile);
+        BackgroundJob.enqueue(() -> indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile));
+        //indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 }

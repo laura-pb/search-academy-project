@@ -10,14 +10,112 @@ import java.util.*;
 
 public class IMDbParser {
 
-    public List<Movie> parseData(Optional<File> basics, Optional<File> akas, Optional<File> ratings) {
+    private final File basics;
+    private final File akas;
+    private final File ratings;
+
+    private int batchNumber = 0;
+
+    private Scanner basicsScanner;
+    private Scanner akasScanner;
+    private Scanner ratingsScanner;
+
+    private Aka prevAka = null;
+    private Rating prevRating = null;
+
+    public IMDbParser(File basics, File akas, File ratings) throws FileNotFoundException {
+        this.basics = basics;
+        this.basicsScanner = new Scanner(basics);
+        this.akas = akas;
+        this.akasScanner = new Scanner(akas);
+        this.ratings = ratings;
+        this.ratingsScanner = new Scanner(ratings);
+    }
+
+    public List<Movie> parseData(int batchSize) {
+        List<Movie> movies = new ArrayList<>();
+        int movieNumber = 0;
+
+            if (batchNumber == 0) {
+                //Skip first line (header)
+                basicsScanner.nextLine();
+                akasScanner.nextLine();
+                ratingsScanner.nextLine();
+            }
+
+            while (basicsScanner.hasNextLine() && movieNumber <= batchSize) {
+                String[] fields = basicsScanner.nextLine().split("\t");
+                Movie movie = parseMovie(fields);
+
+                //RATING
+                if (prevRating != null) {
+                    if (prevRating.getMovieId().equals(movie.getMovieId())) {
+                        movie.setRating(prevRating);
+                        prevRating = null;
+                    }
+                    // this movie doesn't have a rating assigned
+                } else
+                    if (ratingsScanner.hasNextLine()) {
+                        String[] ratingFields = ratingsScanner.nextLine().split("\t");
+                        Rating rating = parseRating(ratingFields);
+                        if (rating.getMovieId().equals(movie.getMovieId())) {
+                            movie.setRating(rating);
+                        } else {
+                            prevRating = rating;
+                        }
+                }
+
+                //AKAS
+                List<Aka> akas = new ArrayList<>();
+                if (prevAka != null) {
+                    if (prevAka.getMovieId().equals(movie.getMovieId())) {
+                        akas.add(prevAka);
+                        prevAka = null;
+                    }
+                }
+                while (prevAka == null && akasScanner.hasNextLine()) {
+                    String[] akasFields = akasScanner.nextLine().split("\t");
+                    Aka aka = parseAka(akasFields);
+                    if (aka.getMovieId().equals(movie.getMovieId())) {
+                        akas.add(aka);
+                    } else {
+                        prevAka = aka;
+                    }
+                }
+                if (!akas.isEmpty()) {
+                    movie.setAkas(akas);
+                }
+
+                movies.add(movie);
+            }
+
+            batchNumber++;
+
+            if (!basicsScanner.hasNextLine()) {
+                basicsScanner.close();
+                akasScanner.close();
+                ratingsScanner.close();
+            }
+
+        return  movies;
+    }
+
+    public List<Movie> parseData(File basics, File akas, File ratings) {
         List<Movie> movies = new ArrayList<>();
 
-        if (basics.isPresent()) {
-            parseBasicsFile(basics.get());
+        HashMap<String, Movie> movieDict = parseBasicsFile(basics);
+        List<Aka> akasList = parseAkasFile(akas);
+        List<Rating> ratingsList = parseRatingsFile(ratings);
+
+        for (Aka aka : akasList) {
+            movieDict.get(aka.getMovieId()).addAka(aka);
         }
 
-        return movies;
+        for (Rating rating : ratingsList) {
+            movieDict.get(rating.getMovieId()).setRating(rating);
+        }
+
+        return new ArrayList<>(movieDict.values());
     }
 
     private HashMap<String, Movie> parseBasicsFile(File basics) {
@@ -34,6 +132,7 @@ public class IMDbParser {
                                 fields[BASICS_ORIGINALTITLE], parseBoolean(fields[BASICS_ISADULT]),
                                 parseInteger(fields[BASICS_STARTYEAR]), parseInteger(fields[BASICS_ENDYEAR]),
                                 parseInteger(fields[BASICS_RUNTIMEMINUTES]), parseStringArray(fields[BASICS_GENRES])));
+
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -41,6 +140,23 @@ public class IMDbParser {
             scanner.close();
         }
         return movies;
+    }
+
+    private Movie parseMovie(String[] fields) {
+        return new Movie(fields[BASICS_ID], fields[BASICS_TYPE], fields[BASICS_PRIMARYTITLE],
+                fields[BASICS_ORIGINALTITLE], parseBoolean(fields[BASICS_ISADULT]),
+                parseInteger(fields[BASICS_STARTYEAR]), parseInteger(fields[BASICS_ENDYEAR]),
+                parseInteger(fields[BASICS_RUNTIMEMINUTES]), parseStringArray(fields[BASICS_GENRES]));
+    }
+
+    private Rating parseRating(String[] fields) {
+        return new Rating(fields[RATINGS_ID], parseFloat(fields[RATINGS_AVERAGE]),
+                parseInteger(fields[RATINGS_NUMVOTES]));
+    }
+
+    private Aka parseAka(String[] fields) {
+        return new Aka(fields[AKAS_ID], fields[AKAS_TITLE], fields[AKAS_REGION], fields[AKAS_LANGUAGE],
+                parseBoolean(fields[AKAS_ORIGINALTITLE]));
     }
 
     private List<Rating> parseRatingsFile(File ratings) {
