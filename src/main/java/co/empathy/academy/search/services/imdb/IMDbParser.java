@@ -43,7 +43,7 @@ public class IMDbParser {
                 ratingsScanner.nextLine();
             }
 
-            while (basicsScanner.hasNextLine() && movieNumber <= batchSize) {
+            while (basicsScanner.hasNextLine() && movieNumber < batchSize) {
                 String[] fields = basicsScanner.nextLine().split("\t");
                 Movie movie = parseMovie(fields);
 
@@ -87,6 +87,7 @@ public class IMDbParser {
                 }
 
                 movies.add(movie);
+                movieNumber++;
             }
 
             batchNumber++;

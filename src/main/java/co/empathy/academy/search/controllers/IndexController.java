@@ -48,8 +48,8 @@ public class IndexController {
         File akasFile = FileConversion.convertMultipartToTempFile(akas);
         File ratingsFile = FileConversion.convertMultipartToTempFile(ratings);
 
-        BackgroundJob.enqueue(() -> indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile));
-        //indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile);
+        //BackgroundJob.enqueue(() -> indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile));
+        indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 }
