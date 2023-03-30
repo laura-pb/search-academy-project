@@ -6,5 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ElasticService {
-    void indexIMDbDocs(List<Movie> movies) throws IOException;
+    void indexIMDbDocs(List<Movie> movies, String indexName) throws IOException;
+
+    void createIndex(String indexName) throws IOException;
 }

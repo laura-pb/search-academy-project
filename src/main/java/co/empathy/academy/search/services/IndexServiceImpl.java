@@ -22,9 +22,11 @@ public class IndexServiceImpl implements IndexService {
         IMDbParser parser = new IMDbParser(basics, akas, ratings);
 
         List<Movie> moviesBatch;
+        String indexName = "movies";
+        elasticService.createIndex(indexName);
         do {
             moviesBatch = parser.parseData(MOVIE_BATCH_SIZE);
-            elasticService.indexIMDbDocs(moviesBatch);
+            elasticService.indexIMDbDocs(moviesBatch, indexName);
             moviesBatch.clear();
         } while (moviesBatch.size() == MOVIE_BATCH_SIZE);
 
