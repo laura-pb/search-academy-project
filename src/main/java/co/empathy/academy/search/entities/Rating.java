@@ -36,4 +36,13 @@ public class Rating {
     public void setNumVotes(Integer numVotes) {
         this.numVotes = numVotes;
     }
+
+    @Override
+    public String toString() {
+        return "Rating{" +
+                "movieId='" + movieId + '\'' +
+                ", rating=" + rating +
+                ", numVotes=" + numVotes +
+                '}';
+    }
 }

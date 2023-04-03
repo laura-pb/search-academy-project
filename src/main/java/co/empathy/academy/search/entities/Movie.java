@@ -1,5 +1,6 @@
 package co.empathy.academy.search.entities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class Movie {
 
     public Movie(String movieId, String type, String primaryTitle, String originalTitle, boolean isAdult, Integer startYear,
                  Integer endYear, Integer runtimeMinutes, String[] genres) {
-        this(movieId, type, primaryTitle, originalTitle, null, isAdult, startYear, endYear, runtimeMinutes,
+        this(movieId, type, primaryTitle, originalTitle, new ArrayList<Aka>(), isAdult, startYear, endYear, runtimeMinutes,
                 genres, null);
     }
 
@@ -125,5 +126,29 @@ public class Movie {
 
     public void setRating(Rating rating) {
         this.rating = rating;
+    }
+
+    public void addAka(Aka aka) {
+        if (this.akas == null) {
+            throw new IllegalStateException();
+        }
+        this.akas.add(aka);
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "movieId='" + movieId + '\'' +
+                ", type='" + type + '\'' +
+                ", primaryTitle='" + primaryTitle + '\'' +
+                ", originalTitle='" + originalTitle + '\'' +
+                ", akas=" + akas +
+                ", isAdult=" + isAdult +
+                ", startYear=" + startYear +
+                ", endYear=" + endYear +
+                ", runtimeMinutes=" + runtimeMinutes +
+                ", genres=" + Arrays.toString(genres) +
+                ", rating=" + rating +
+                '}';
     }
 }

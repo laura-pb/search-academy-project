@@ -56,4 +56,15 @@ public class Aka {
     public void setOriginalTitle(boolean originalTitle) {
         this.originalTitle = originalTitle;
     }
+
+    @Override
+    public String toString() {
+        return "Aka{" +
+                "movieId='" + movieId + '\'' +
+                ", title='" + title + '\'' +
+                ", language='" + language + '\'' +
+                ", region='" + region + '\'' +
+                ", originalTitle=" + originalTitle +
+                '}';
+    }
 }
