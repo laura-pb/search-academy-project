@@ -1,9 +1,11 @@
 package co.empathy.academy.search.controllers;
 
 import co.empathy.academy.search.entities.error.ErrorData;
+import co.empathy.academy.search.exceptions.FileReadingException;
 import co.empathy.academy.search.exceptions.InvalidJsonFileException;
 import co.empathy.academy.search.exceptions.UserAlreadyExistsException;
 import co.empathy.academy.search.exceptions.UserNotFoundException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,9 +32,9 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorData);
     }
 
-    @ExceptionHandler(InvalidJsonFileException.class)
-    protected ResponseEntity<Object> handleInvalidFileData(InvalidJsonFileException ex, WebRequest wr) {
+    @ExceptionHandler(FileReadingException.class)
+    protected ResponseEntity<Object> handleInvalidFileData(FileReadingException ex, WebRequest wr) {
         ErrorData errorData = new ErrorData(ex.getMessage(), wr.getDescription(false), BAD_REQUEST);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorData);
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, wr);
     }
 }
