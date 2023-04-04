@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class IndexServiceImpl implements IndexService {
 
-    private final static int MOVIE_BATCH_SIZE = 20000;
+    private final static int MOVIE_BATCH_SIZE = 30000;
 
     @Autowired
     private ElasticService elasticService;

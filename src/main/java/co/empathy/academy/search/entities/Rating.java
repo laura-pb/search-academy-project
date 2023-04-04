@@ -1,6 +1,9 @@
 package co.empathy.academy.search.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Rating {
+    @JsonIgnore
     private String movieId;
     private Float rating;
     private Integer numVotes;

@@ -1,0 +1,31 @@
+{
+  "properties": {
+    "movieId": {
+      "type": "keyword"
+    },
+    "type": {
+      "type": "keyword"
+    },
+    "primaryTitle": {
+      "type": "text"
+    },
+    "originalTitle": {
+      "type": "text"
+    },
+    "isAdult": {
+      "type": "boolean"
+    },
+    "startYear": {
+      "type": "integer"
+    },
+    "endYear": {
+      "type": "integer"
+    },
+    "runtimeMinutes": {
+      "type": "integer"
+    },
+    "genres": {
+      "type": "keyword"
+    }
+  }
+}

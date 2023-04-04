@@ -1,6 +1,9 @@
 package co.empathy.academy.search.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Aka {
+    @JsonIgnore
     private String movieId;
     private String title;
     private String language;
