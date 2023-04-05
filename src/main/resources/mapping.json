@@ -24,8 +24,34 @@
     "runtimeMinutes": {
       "type": "integer"
     },
+    "rating": {
+      "properties": {
+        "numVotes": {
+          "type": "integer"
+        },
+        "rating": {
+          "type": "float"
+        }
+      }
+    },
     "genres": {
       "type": "keyword"
+    },
+    "akas": {
+      "properties": {
+        "language": {
+          "type": "keyword"
+        },
+        "originalTitle": {
+          "type": "boolean"
+        },
+        "region": {
+          "type": "keyword"
+        },
+        "title": {
+          "type": "text"
+        }
+      }
     }
   }
 }
