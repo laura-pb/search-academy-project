@@ -19,8 +19,8 @@ public class IndexServiceImpl implements IndexService {
     private ElasticService elasticService;
 
     @Override
-    public void indexIMDbFiles(File basics, File akas, File ratings) throws IOException {
-        IMDbParser parser = new IMDbParser(basics, akas, ratings);
+    public void indexIMDbFiles(File basics, File akas, File ratings, File crew, File principals) throws IOException {
+        IMDbParser parser = new IMDbParser(basics, akas, ratings, crew, principals);
 
         List<Movie> moviesBatch = new ArrayList<>();
         String indexName = "movies";

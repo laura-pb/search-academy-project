@@ -24,15 +24,11 @@
     "runtimeMinutes": {
       "type": "integer"
     },
-    "rating": {
-      "properties": {
-        "numVotes": {
-          "type": "integer"
-        },
-        "rating": {
-          "type": "float"
-        }
-      }
+    "averageRating": {
+      "type": "float"
+    },
+    "numVotes": {
+      "type": "integer"
     },
     "genres": {
       "type": "keyword"
@@ -50,6 +46,27 @@
         },
         "title": {
           "type": "text"
+        }
+      }
+    },
+    "directors": {
+      "properties": {
+        "nconst": {
+          "type": "keyword"
+        }
+      }
+    },
+    "starring": {
+      "properties": {
+        "characters": {
+          "type": "text"
+        },
+        "name": {
+          "properties": {
+            "nconst": {
+              "type": "keyword"
+            }
+          }
         }
       }
     }
