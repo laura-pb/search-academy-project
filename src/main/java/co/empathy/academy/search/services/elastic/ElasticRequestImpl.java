@@ -14,6 +14,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 public class ElasticRequestImpl implements ElasticRequest{
@@ -40,6 +41,7 @@ public class ElasticRequestImpl implements ElasticRequest{
                         .index(indexName)
                         .build()
         );
+        putMapping(indexName, "mapping.json");
     }
 
     @Override
@@ -56,5 +58,11 @@ public class ElasticRequestImpl implements ElasticRequest{
             );
         }
         BulkResponse bulkResponse = client.bulk(br.build());
+    }
+
+    @Override
+    public void putMapping(String indexName, String mappingFile) throws IOException {
+        InputStream mapping = getClass().getClassLoader().getResourceAsStream(mappingFile);
+        client.indices().putMapping(p -> p.index(indexName).withJson(mapping));
     }
 }

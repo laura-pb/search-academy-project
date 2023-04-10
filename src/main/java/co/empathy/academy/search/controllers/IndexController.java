@@ -36,19 +36,26 @@ public class IndexController {
     @Parameter(name = "basics", description = "IMDb basics file with basic film information")
     @Parameter(name = "akas", description = "IMDb akas file with movie title translations")
     @Parameter(name = "ratings", description = "IMDb ratings file with movie rating and votes information")
+    @Parameter(name = "crew", description = "IMDb crew file with movie director and writer information")
+    @Parameter(name = "principals", description = "IMDb principals file with movie cast information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Files uploaded.", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Invalid request, some file missing", content = @Content),
             @ApiResponse(responseCode = "500", description = "Unexpected problem reading the file", content = @Content)
     })
     @PostMapping(value = "", consumes = {"multipart/form-data"})
     public ResponseEntity indexIMDbFiles(@RequestParam MultipartFile basics,
-                               @RequestParam MultipartFile akas,
-                               @RequestParam MultipartFile ratings) throws IOException {
+                                         @RequestParam MultipartFile akas,
+                                         @RequestParam MultipartFile ratings,
+                                         @RequestParam MultipartFile crew,
+                                         @RequestParam MultipartFile principals) throws IOException {
         File basicsFile = FileConversion.convertMultipartToTempFile(basics);
         File akasFile = FileConversion.convertMultipartToTempFile(akas);
         File ratingsFile = FileConversion.convertMultipartToTempFile(ratings);
+        File crewFile = FileConversion.convertMultipartToTempFile(crew);
+        File principalsFile = FileConversion.convertMultipartToTempFile(principals);
 
-        BackgroundJob.enqueue(() -> indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile));
+        BackgroundJob.enqueue(() -> indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile, crewFile, principalsFile));
         //indexService.indexIMDbFiles(basicsFile, akasFile, ratingsFile);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }

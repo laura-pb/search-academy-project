@@ -1,0 +1,74 @@
+{
+  "properties": {
+    "movieId": {
+      "type": "keyword"
+    },
+    "type": {
+      "type": "keyword"
+    },
+    "primaryTitle": {
+      "type": "text"
+    },
+    "originalTitle": {
+      "type": "text"
+    },
+    "isAdult": {
+      "type": "boolean"
+    },
+    "startYear": {
+      "type": "integer"
+    },
+    "endYear": {
+      "type": "integer"
+    },
+    "runtimeMinutes": {
+      "type": "integer"
+    },
+    "averageRating": {
+      "type": "float"
+    },
+    "numVotes": {
+      "type": "integer"
+    },
+    "genres": {
+      "type": "keyword"
+    },
+    "akas": {
+      "properties": {
+        "language": {
+          "type": "keyword"
+        },
+        "originalTitle": {
+          "type": "boolean"
+        },
+        "region": {
+          "type": "keyword"
+        },
+        "title": {
+          "type": "text"
+        }
+      }
+    },
+    "directors": {
+      "properties": {
+        "nconst": {
+          "type": "keyword"
+        }
+      }
+    },
+    "starring": {
+      "properties": {
+        "characters": {
+          "type": "text"
+        },
+        "name": {
+          "properties": {
+            "nconst": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  }
+}

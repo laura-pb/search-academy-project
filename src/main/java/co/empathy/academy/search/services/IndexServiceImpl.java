@@ -13,14 +13,14 @@ import java.util.List;
 @Service
 public class IndexServiceImpl implements IndexService {
 
-    private final static int MOVIE_BATCH_SIZE = 20000;
+    private final static int MOVIE_BATCH_SIZE = 30000;
 
     @Autowired
     private ElasticService elasticService;
 
     @Override
-    public void indexIMDbFiles(File basics, File akas, File ratings) throws IOException {
-        IMDbParser parser = new IMDbParser(basics, akas, ratings);
+    public void indexIMDbFiles(File basics, File akas, File ratings, File crew, File principals) throws IOException {
+        IMDbParser parser = new IMDbParser(basics, akas, ratings, crew, principals);
 
         List<Movie> moviesBatch = new ArrayList<>();
         String indexName = "movies";
