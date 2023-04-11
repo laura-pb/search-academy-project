@@ -35,13 +35,14 @@ public class ElasticRequestImpl implements ElasticRequest{
     }
 
     @Override
-    public void createIndex(String indexName) throws IOException {
+    public void createIndex(String indexName, String settingsFile, String mappingFile) throws IOException {
         CreateIndexResponse createResponse = client.indices().create(
                 new CreateIndexRequest.Builder()
                         .index(indexName)
                         .build()
         );
-        putMapping(indexName, "mapping.json");
+        putSettings(indexName, settingsFile);
+        putMapping(indexName, mappingFile);
     }
 
     @Override
@@ -64,5 +65,15 @@ public class ElasticRequestImpl implements ElasticRequest{
     public void putMapping(String indexName, String mappingFile) throws IOException {
         InputStream mapping = getClass().getClassLoader().getResourceAsStream(mappingFile);
         client.indices().putMapping(p -> p.index(indexName).withJson(mapping));
+    }
+
+    @Override
+    public void putSettings(String indexName, String settingsFile) throws IOException {
+        client.indices().close(c -> c.index(indexName));
+
+        InputStream settings = getClass().getClassLoader().getResourceAsStream(settingsFile);
+        client.indices().putSettings(p -> p.index(indexName).withJson(settings));
+
+        client.indices().open(o -> o.index(indexName));
     }
 }

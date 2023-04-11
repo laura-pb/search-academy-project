@@ -23,7 +23,7 @@ public class ElasticServiceImpl implements ElasticService{
     }
 
     @Override
-    public void createIndex(String indexName) throws IOException {
-        elasticRequest.createIndex(indexName);
+    public void createIndex(String indexName, String settingsFile, String mappingsFile) throws IOException {
+        elasticRequest.createIndex(indexName, settingsFile, mappingsFile);
     }
 }

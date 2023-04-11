@@ -8,5 +8,5 @@ import java.util.List;
 public interface ElasticService {
     void indexIMDbDocs(List<Movie> movies, String indexName) throws IOException;
 
-    void createIndex(String indexName) throws IOException;
+    void createIndex(String indexName, String settingsFile, String mappingsFile) throws IOException;
 }

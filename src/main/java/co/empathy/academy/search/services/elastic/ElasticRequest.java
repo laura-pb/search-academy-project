@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface ElasticRequest {
 
-    void createIndex(String indexName) throws IOException;
+    void createIndex(String indexName, String settingsFile, String mappingFile) throws IOException;
 
     void bulkIndexMovies(List<Movie> movies, String indexName) throws IOException;
 
     void putMapping(String indexName, String mappingFile) throws IOException;
+
+    void putSettings(String indexName, String settingsFile) throws IOException;
 }
