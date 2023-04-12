@@ -14,7 +14,6 @@ import java.util.List;
 public class IndexServiceImpl implements IndexService {
 
     private final static int MOVIE_BATCH_SIZE = 30000;
-    private final static String IMDB_INDEX_NAME = "movies2";
     private final static String IMDB_SETTINGS_FILE = "analyzer.json";
     private final static String IMDB_MAPPING_FILE = "mapping.json";
 
@@ -22,15 +21,15 @@ public class IndexServiceImpl implements IndexService {
     private ElasticService elasticService;
 
     @Override
-    public void indexIMDbFiles(File basics, File akas, File ratings, File crew, File principals) throws IOException {
+    public void indexIMDbFiles(String indexName, File basics, File akas, File ratings, File crew, File principals) throws IOException {
         IMDbParser parser = new IMDbParser(basics, akas, ratings, crew, principals);
 
         List<Movie> moviesBatch = new ArrayList<>();
-        elasticService.createIndex(IMDB_INDEX_NAME, IMDB_SETTINGS_FILE, IMDB_MAPPING_FILE);
+        elasticService.createIndex(indexName, IMDB_SETTINGS_FILE, IMDB_MAPPING_FILE);
         do {
             moviesBatch.clear();
             moviesBatch = parser.parseData(MOVIE_BATCH_SIZE);
-            elasticService.indexIMDbDocs(moviesBatch, IMDB_INDEX_NAME);
+            elasticService.indexIMDbDocs(moviesBatch, indexName);
         } while (moviesBatch.size() == MOVIE_BATCH_SIZE);
 
     }

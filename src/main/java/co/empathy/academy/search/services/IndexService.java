@@ -7,5 +7,5 @@ public interface IndexService {
     /**
      * Indexes IMDb data from basics, akas and ratings files.
      */
-    void indexIMDbFiles(File basics, File akas, File ratings, File crew, File principals) throws IOException;
+    void indexIMDbFiles(String indexName, File basics, File akas, File ratings, File crew, File principals) throws IOException;
 }
