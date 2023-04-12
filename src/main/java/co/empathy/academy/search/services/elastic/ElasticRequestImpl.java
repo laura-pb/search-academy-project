@@ -1,20 +1,35 @@
 package co.empathy.academy.search.services.elastic;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
-import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
+import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
+import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import co.empathy.academy.search.entities.AcademySearchResponse;
+import co.empathy.academy.search.entities.Facet;
 import co.empathy.academy.search.entities.Movie;
 import jakarta.annotation.PostConstruct;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 
+
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ElasticRequestImpl implements ElasticRequest{
@@ -35,13 +50,29 @@ public class ElasticRequestImpl implements ElasticRequest{
     }
 
     @Override
-    public void createIndex(String indexName) throws IOException {
+    public void createIndex(String indexName, String settingsFile, String mappingFile) throws IOException {
+        boolean indexExists = checkIndexExistence(indexName);
+
+        if (indexExists) {
+            deleteIndex(indexName);
+        }
+
         CreateIndexResponse createResponse = client.indices().create(
                 new CreateIndexRequest.Builder()
                         .index(indexName)
                         .build()
         );
-        putMapping(indexName, "mapping.json");
+        putSettings(indexName, settingsFile);
+        putMapping(indexName, mappingFile);
+    }
+
+    @Override
+    public void deleteIndex(String indexName) throws IOException {
+        client.indices().delete(DeleteIndexRequest.of(d -> d.index(indexName)));
+    }
+
+    private boolean checkIndexExistence(String indexName) throws IOException {
+        return client.indices().exists(ExistsRequest.of(e -> e.index(indexName))).value();
     }
 
     @Override
@@ -57,12 +88,38 @@ public class ElasticRequestImpl implements ElasticRequest{
                     )
             );
         }
-        BulkResponse bulkResponse = client.bulk(br.build());
+
+        client.bulk(br.build());
     }
 
     @Override
     public void putMapping(String indexName, String mappingFile) throws IOException {
         InputStream mapping = getClass().getClassLoader().getResourceAsStream(mappingFile);
         client.indices().putMapping(p -> p.index(indexName).withJson(mapping));
+    }
+
+    @Override
+    public void putSettings(String indexName, String settingsFile) throws IOException {
+        client.indices().close(c -> c.index(indexName));
+
+        InputStream settings = getClass().getClassLoader().getResourceAsStream(settingsFile);
+        client.indices().putSettings(p -> p.index(indexName).withJson(settings));
+
+        client.indices().open(o -> o.index(indexName));
+    }
+
+    //TODO THIS IS A FIRST BASIC DRAFT JUST TO TEST CONNECTION WITH FRONTEND
+    @Override
+    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, List<SortOptions> sortOptions) throws IOException {
+        SearchResponse<Movie> moviesResponse =
+                client.search(SearchRequest.of(i -> i
+                                .index(indexName)
+                                .query(query)
+                                .size(maxNumber)), Movie.class);
+
+        List<Movie> hits = moviesResponse.hits().hits().stream().map(Hit::source).toList();
+        List<Facet> facets = new ArrayList<>();
+
+        return new AcademySearchResponse(hits, facets);
     }
 }

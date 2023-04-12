@@ -7,10 +7,14 @@
       "type": "keyword"
     },
     "primaryTitle": {
-      "type": "text"
+      "type": "text",
+      "analyzer": "custom_analyzer",
+      "search_analyzer": "custom_analyzer"
     },
     "originalTitle": {
-      "type": "text"
+      "type": "text",
+      "analyzer": "custom_analyzer",
+      "search_analyzer": "custom_analyzer"
     },
     "isAdult": {
       "type": "boolean"
@@ -45,7 +49,9 @@
           "type": "keyword"
         },
         "title": {
-          "type": "text"
+          "type": "text",
+          "analyzer": "custom_analyzer",
+          "search_analyzer": "custom_analyzer"
         }
       }
     },

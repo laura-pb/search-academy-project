@@ -3,6 +3,8 @@ package co.empathy.academy.search.entities;
 public class Director {
     private String nconst;
 
+    public Director() {}
+
     public Director(String nconst) {
         this.nconst = nconst;
     }

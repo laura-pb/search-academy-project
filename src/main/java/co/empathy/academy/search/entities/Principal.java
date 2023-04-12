@@ -8,6 +8,8 @@ public class Principal {
     private Name name;
     private String[] characters;
 
+    public Principal() {}
+
     public Principal(String movieId, Name name, String[] characters) {
         this.movieId = movieId;
         this.name = name;

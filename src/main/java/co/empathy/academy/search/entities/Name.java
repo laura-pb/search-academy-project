@@ -3,6 +3,8 @@ package co.empathy.academy.search.entities;
 public class Name {
     private String nconst;
 
+    public Name() {}
+
     public Name(String nconst) {
         this.nconst = nconst;
     }
