@@ -24,6 +24,7 @@ import java.util.Optional;
 
 
 @RestController
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/movies")
 public class IMDbController {
     private final static String IMDB_INDEX_NAME = "movies";
