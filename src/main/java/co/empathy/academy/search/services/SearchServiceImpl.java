@@ -18,6 +18,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public AcademySearchResponse<Movie> getMoviesByTitle(String indexName, String title) throws IOException {
+        // Fields in the movies index that contain movie titles
         String[] fields = {"primaryTitle", "originalTitle", "akas.title"};
         Query query = queryService.multiMatchQuery(title, fields);
         AcademySearchResponse<Movie> movies = elasticService.executeQuery(indexName, query, 100, null);
