@@ -26,11 +26,13 @@ public class IndexServiceImpl implements IndexService {
 
         List<Movie> moviesBatch = new ArrayList<>();
         elasticService.createIndex(indexName, IMDB_SETTINGS_FILE, IMDB_MAPPING_FILE);
+
         do {
+            // To avoid Java memory problems and to achieve a better performance, indexing is made in batches of
+            // MOVIE_BATCH_SIZE movies. Once a batch is completed, its data is locally removed and a new batch is computed.
             moviesBatch.clear();
             moviesBatch = parser.parseData(MOVIE_BATCH_SIZE);
             elasticService.indexIMDbDocs(moviesBatch, indexName);
         } while (moviesBatch.size() == MOVIE_BATCH_SIZE);
-
     }
 }
