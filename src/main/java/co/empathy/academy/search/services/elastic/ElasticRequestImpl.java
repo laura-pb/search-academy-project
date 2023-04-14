@@ -51,12 +51,6 @@ public class ElasticRequestImpl implements ElasticRequest{
 
     @Override
     public void createIndex(String indexName, String settingsFile, String mappingFile) throws IOException {
-        boolean indexExists = checkIndexExistence(indexName);
-
-        if (indexExists) {
-            deleteIndex(indexName);
-        }
-
         CreateIndexResponse createResponse = client.indices().create(
                 new CreateIndexRequest.Builder()
                         .index(indexName)
@@ -71,7 +65,8 @@ public class ElasticRequestImpl implements ElasticRequest{
         client.indices().delete(DeleteIndexRequest.of(d -> d.index(indexName)));
     }
 
-    private boolean checkIndexExistence(String indexName) throws IOException {
+    @Override
+    public boolean checkIndexExistence(String indexName) throws IOException {
         return client.indices().exists(ExistsRequest.of(e -> e.index(indexName))).value();
     }
 
