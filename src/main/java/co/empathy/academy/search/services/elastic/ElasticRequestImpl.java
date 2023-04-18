@@ -21,9 +21,6 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 
 
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 
 
@@ -78,7 +75,7 @@ public class ElasticRequestImpl implements ElasticRequest{
             br.operations(op -> op
                     .index(idx -> idx
                             .index(indexName)
-                            .id(movie.getMovieId())
+                            .id(movie.getTconst())
                             .document(movie)
                     )
             );
@@ -105,11 +102,12 @@ public class ElasticRequestImpl implements ElasticRequest{
 
     //TODO THIS IS A FIRST BASIC DRAFT JUST TO TEST CONNECTION WITH FRONTEND
     @Override
-    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, List<SortOptions> sortOptions) throws IOException {
+    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, SortOptions sortOptions) throws IOException {
         SearchResponse<Movie> moviesResponse =
                 client.search(SearchRequest.of(i -> i
                                 .index(indexName)
                                 .query(query)
+                                .sort(sortOptions)
                                 .size(maxNumber)), Movie.class);
 
         List<Movie> hits = moviesResponse.hits().hits().stream().map(Hit::source).toList();

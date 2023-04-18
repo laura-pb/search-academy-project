@@ -42,5 +42,5 @@ public interface ElasticService {
      * @return an AcademySearchResponse that is composed both of hits and facets
      * @throws IOException
      */
-    AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, List<SortOptions> sortOptions) throws IOException;
+    AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, SortOptions sortOptions) throws IOException;
 }

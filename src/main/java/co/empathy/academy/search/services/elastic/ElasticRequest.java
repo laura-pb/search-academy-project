@@ -69,5 +69,5 @@ public interface ElasticRequest {
      * @return
      * @throws IOException
      */
-    AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, List<SortOptions> sortOptions) throws IOException;
+    AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, SortOptions sortOptions) throws IOException;
 }

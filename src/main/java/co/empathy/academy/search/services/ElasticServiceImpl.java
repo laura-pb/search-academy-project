@@ -36,7 +36,7 @@ public class ElasticServiceImpl implements ElasticService {
     }
 
     @Override
-    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, List<SortOptions> sortOptions) throws IOException {
+    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, SortOptions sortOptions) throws IOException {
         return elasticRequest.executeQuery(indexName, query, maxNumber, sortOptions);
     }
 }
