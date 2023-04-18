@@ -3,8 +3,8 @@ package co.empathy.academy.search.entities;
 import java.util.List;
 
 public class Movie {
-    private String movieId;
-    private String type;
+    private String tconst;
+    private String titleType;
     private String primaryTitle;
     private String originalTitle;
     private List<Aka> akas;
@@ -20,17 +20,17 @@ public class Movie {
 
     public Movie() {}
 
-    public Movie(String movieId, String type, String primaryTitle, String originalTitle, boolean isAdult, Integer startYear,
+    public Movie(String tconst, String titleType, String primaryTitle, String originalTitle, boolean isAdult, Integer startYear,
                  Integer endYear, Integer runtimeMinutes, String[] genres) {
-        this(movieId, type, primaryTitle, originalTitle, null, isAdult, startYear, endYear, runtimeMinutes,
+        this(tconst, titleType, primaryTitle, originalTitle, null, isAdult, startYear, endYear, runtimeMinutes,
                 genres, null,null, null, null);
     }
 
-    public Movie(String movieId, String type, String primaryTitle, String originalTitle, List<Aka> akas,
+    public Movie(String tconst, String titleType, String primaryTitle, String originalTitle, List<Aka> akas,
                  boolean isAdult, Integer startYear, Integer endYear, Integer runtimeMinutes, String[] genres,
                  Integer numVotes, Float averageRating, List<Director> directors, List<Principal> starring) {
-        this.movieId = movieId;
-        this.type = type;
+        this.tconst = tconst;
+        this.titleType = titleType;
         this.primaryTitle = primaryTitle;
         this.originalTitle = originalTitle;
         this.akas = akas;
@@ -45,20 +45,20 @@ public class Movie {
         this.starring = starring;
     }
 
-    public String getMovieId() {
-        return movieId;
+    public String getTconst() {
+        return tconst;
     }
 
-    public void setMovieId(String movieId) {
-        this.movieId = movieId;
+    public void setTconst(String tconst) {
+        this.tconst = tconst;
     }
 
-    public String getType() {
-        return type;
+    public String getTitleType() {
+        return titleType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTitleType(String titleType) {
+        this.titleType = titleType;
     }
 
     public String getPrimaryTitle() {
