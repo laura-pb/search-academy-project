@@ -2,7 +2,7 @@
   "settings": {
     "analysis": {
       "analyzer": {
-        "custom_analyzer": {
+        "ngram_analyzer": {
           "type": "custom",
           "tokenizer": "standard",
           "char_filter": [],
@@ -10,16 +10,27 @@
             "lowercase",
             "asciifolding",
             "word_delimiter",
-            "ngram",
             "stop",
-            "spanish_stop"
+            "custom_ngram"
+          ]
+        },
+        "exact_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "char_filter": [],
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "word_delimiter",
+            "stop"
           ]
         }
       },
       "filter": {
-        "spanish_stop": {
-          "type": "stop",
-          "stopwords": "_spanish_"
+        "custom_ngram": {
+          "type": "ngram",
+          "min_gram": "3",
+          "max_gram": "4"
         }
       }
     }

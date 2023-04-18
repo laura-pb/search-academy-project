@@ -1,20 +1,32 @@
 {
   "properties": {
-    "movieId": {
+    "tconst": {
       "type": "keyword"
     },
-    "type": {
+    "titleType": {
       "type": "keyword"
     },
     "primaryTitle": {
       "type": "text",
-      "analyzer": "custom_analyzer",
-      "search_analyzer": "custom_analyzer"
+      "copy_to": "primaryTitleNgrams",
+      "analyzer": "exact_analyzer",
+      "search_analyzer": "exact_analyzer"
+    },
+    "primaryTitleNgrams": {
+      "type": "text",
+      "analyzer": "ngram_analyzer",
+      "search_analyzer": "ngram_analyzer"
     },
     "originalTitle": {
       "type": "text",
-      "analyzer": "custom_analyzer",
-      "search_analyzer": "custom_analyzer"
+      "copy_to": "originalTitleNgrams",
+      "analyzer": "exact_analyzer",
+      "search_analyzer": "exact_analyzer"
+    },
+    "originalTitleNgrams": {
+      "type": "text",
+      "analyzer": "ngram_analyzer",
+      "search_analyzer": "ngram_analyzer"
     },
     "isAdult": {
       "type": "boolean"
@@ -50,8 +62,8 @@
         },
         "title": {
           "type": "text",
-          "analyzer": "custom_analyzer",
-          "search_analyzer": "custom_analyzer"
+          "analyzer": "ngram_analyzer",
+          "search_analyzer": "ngram_analyzer"
         }
       }
     },
