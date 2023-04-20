@@ -50,7 +50,7 @@ public class SearchServiceImpl implements SearchService {
                                                            Optional<String[]> types, Optional<Integer> minRuntime,
                                                            Optional<Integer> maxRuntime, Optional<Float> minRating,
                                                            Optional<Integer> minYear, Optional<Integer> maxYear,
-                                                           Optional<String> sortCriteria) throws IOException {
+                                                           Optional<String> sortCriteria, Optional<String> title) throws IOException {
         List<Query> filterPresentQueries = new ArrayList<>();
 
         if (genres.isPresent()) {
@@ -77,6 +77,12 @@ public class SearchServiceImpl implements SearchService {
         if (minYear.isPresent() || maxYear.isPresent()) {
             Query query = queryService.rangeQuery(minYear.isPresent() ? minYear.get() : 0, maxYear.isPresent() ?
                     maxYear.get() : 5000, YEAR);
+            filterPresentQueries.add(query);
+        }
+
+        if (title.isPresent()) {
+            String[] fields = {"primaryTitle^3", "primaryTitleNgrams", "originalTitle^3", "originalTitleNgrams", "akas.title^2"};
+            Query query = queryService.multiMatchQuery(title.get(), fields);
             filterPresentQueries.add(query);
         }
 

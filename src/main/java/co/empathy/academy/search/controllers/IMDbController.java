@@ -109,9 +109,10 @@ public class IMDbController {
                                                                      @RequestParam("minRating") Optional<Float> minRating,
                                                                      @RequestParam("minYear") Optional<Integer> minYear,
                                                                      @RequestParam("maxYear") Optional<Integer> maxYear,
-                                                                     @RequestParam("sortCriteria") Optional<String> sortCriteria) throws IOException {
+                                                                     @RequestParam("sortCriteria") Optional<String> sortCriteria,
+                                                                     @RequestParam("title") Optional<String> title) throws IOException {
         AcademySearchResponse<Movie> searchResponse = searchService.getMoviesByFilters(IMDB_INDEX_NAME, genres, types,
-                                                        minRuntime, maxRuntime, minRating, minYear, maxYear, sortCriteria);
+                                                        minRuntime, maxRuntime, minRating, minYear, maxYear, sortCriteria, title);
         return ResponseEntity.ok(searchResponse);
     }
 
