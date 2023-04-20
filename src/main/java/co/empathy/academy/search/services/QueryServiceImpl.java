@@ -4,6 +4,8 @@ import co.elastic.clients.elasticsearch._types.FieldSort;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.json.JsonData;
 import org.springframework.stereotype.Service;
@@ -90,6 +92,20 @@ public class QueryServiceImpl implements QueryService {
     @Override
     public Query gteQuery(double minValue, String field) {
         return gteQuery(minValue, field, 1.0f);
+    }
+
+    @Override
+    public Query matchAllQuery() {
+        Query matchAllQuery = MatchAllQuery.of(m -> m)._toQuery();
+        return matchAllQuery;
+    }
+
+    @Override
+    public Aggregation getAggregation(int size, String field) {
+        Aggregation agg = TermsAggregation.of(t -> t
+                .field(field)
+                .size(size))._toAggregation();
+        return agg;
     }
 
     @Override

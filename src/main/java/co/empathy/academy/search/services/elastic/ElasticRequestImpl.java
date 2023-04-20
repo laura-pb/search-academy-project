@@ -2,6 +2,7 @@ package co.empathy.academy.search.services.elastic;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -14,8 +15,8 @@ import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import co.empathy.academy.search.entities.AcademySearchResponse;
-import co.empathy.academy.search.entities.Facet;
 import co.empathy.academy.search.entities.Movie;
+import co.empathy.academy.search.entities.facets.Facet;
 import jakarta.annotation.PostConstruct;
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ElasticRequestImpl implements ElasticRequest{
     private ElasticsearchClient client;
@@ -100,7 +102,20 @@ public class ElasticRequestImpl implements ElasticRequest{
         client.indices().open(o -> o.index(indexName));
     }
 
-    //TODO THIS IS A FIRST BASIC DRAFT JUST TO TEST CONNECTION WITH FRONTEND
+    @Override
+    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber) throws IOException {
+        SearchResponse<Movie> moviesResponse =
+                client.search(SearchRequest.of(i -> i
+                        .index(indexName)
+                        .query(query)
+                        .size(maxNumber)), Movie.class);
+
+        List<Movie> hits = moviesResponse.hits().hits().stream().map(Hit::source).toList();
+        List<Facet> facets = new ArrayList<>();
+
+        return new AcademySearchResponse(hits, facets);
+    }
+
     @Override
     public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, SortOptions sortOptions) throws IOException {
         SearchResponse<Movie> moviesResponse =
@@ -114,5 +129,17 @@ public class ElasticRequestImpl implements ElasticRequest{
         List<Facet> facets = new ArrayList<>();
 
         return new AcademySearchResponse(hits, facets);
+    }
+
+    @Override
+    public SearchResponse executeQuery(String indexName, Query query, Integer maxNumber, Map<String, Aggregation> aggregations) throws IOException {
+        SearchResponse<Movie> moviesResponse =
+            client.search(SearchRequest.of(i -> i
+                                .index(indexName)
+                                .query(query)
+                                .size(maxNumber)
+                                .aggregations(aggregations)), Movie.class);
+
+        return moviesResponse;
     }
 }

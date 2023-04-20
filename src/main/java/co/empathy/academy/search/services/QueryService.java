@@ -1,9 +1,8 @@
 package co.empathy.academy.search.services;
 
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
-import co.elastic.clients.json.JsonData;
 
 import java.util.List;
 
@@ -80,20 +79,30 @@ public interface QueryService {
     Query rangeQuery(double minValue, double maxValue, String field);
 
     /**
-     *
-     * @param minValue
-     * @param field
-     * @return
+     * Creates a query that returns documents which field value is greater or equal than minValue provided as parameter.
+     * It boosts results by boost value.
+     * @param minValue minimum value (included) that field must contain
+     * @param field that contains value that is going to be compared with minValue
+     * @param boost boost value
+     * @return range Query with only lower limit
      */
     Query gteQuery(double minValue, String field, float boost);
 
     /**
-     *
-     * @param minValue
-     * @param field
-     * @return
+     * Creates a query that returns documents which field value is greater or equal than minValue provided as parameter.
+     * @param minValue minimum value (included) that field must contain
+     * @param field that contains value that is going to be compared with minValue
+     * @return range Query with only lower limit
      */
     Query gteQuery(double minValue, String field);
+
+    /**
+     * Creates a query that matches everything in the index. Used for building aggregations.
+     * @return matchAll Query
+     */
+    Query matchAllQuery();
+
+    Aggregation getAggregation(int size, String field);
 
     SortOptions getSortOptions(String order, String field);
 }

@@ -2,6 +2,7 @@ package co.empathy.academy.search.services;
 
 import co.empathy.academy.search.entities.AcademySearchResponse;
 import co.empathy.academy.search.entities.Movie;
+import co.empathy.academy.search.entities.facets.ValueFacet;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -38,4 +39,7 @@ public interface SearchService {
                                                     Optional<Integer> minRuntime, Optional<Integer> maxRuntime,
                                                     Optional<Float> minRating, Optional<Integer> minYear,
                                                     Optional<Integer> maxYear, Optional<String> sortCriteria) throws IOException;
+    AcademySearchResponse<Movie> getAggregation(String indexName, String field) throws IOException;
+
+    ValueFacet getValueFacet(String indexName, String field) throws IOException;
 }

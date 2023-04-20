@@ -1,12 +1,15 @@
 package co.empathy.academy.search.services.elastic;
 
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.empathy.academy.search.entities.Movie;
 import co.empathy.academy.search.entities.AcademySearchResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface ElasticRequest {
 
@@ -59,6 +62,18 @@ public interface ElasticRequest {
     void putSettings(String indexName, String settingsFile) throws IOException;
 
     /**
+     * Sends the given query to ElasticSearch, so it is executed in the specified index. Given that there are more
+     * than maxNumber of results, only the first maxNumber are returned.
+     * Result is returned wrapped in a AcademySearchResponse, that contains hits and facets.
+     * @param indexName
+     * @param query
+     * @param maxNumber
+     * @return
+     * @throws IOException
+     */
+    AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber) throws IOException;
+
+    /**
      * Sends the given query to ElasticSearch so it is executed in the specified index. Given that there are more
      * than maxNumber of results, only the first maxNumber are returned. Results are sorted according to sortOptions.
      * Result is returned wrapped in a AcademySearchResponse, that contains hits and facets.
@@ -70,4 +85,17 @@ public interface ElasticRequest {
      * @throws IOException
      */
     AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, SortOptions sortOptions) throws IOException;
+
+    /**
+     * Sends the given query to ElasticSearch so it is executed in the specified index. Given that there are more
+     * than maxNumber of results, only the first maxNumber are returned.
+     * Result is returned wrapped in a AcademySearchResponse, that contains hits and facets.
+     * @param indexName
+     * @param query
+     * @param maxNumber
+     * @param aggregations
+     * @return
+     * @throws IOException
+     */
+    SearchResponse executeQuery(String indexName, Query query, Integer maxNumber, Map<String, Aggregation> aggregations) throws IOException;
 }

@@ -1,16 +1,20 @@
 package co.empathy.academy.search.services;
 
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.empathy.academy.search.entities.AcademySearchResponse;
 import co.empathy.academy.search.entities.Movie;
+import co.empathy.academy.search.entities.facets.Facet;
+import co.empathy.academy.search.entities.facets.Value;
+import co.empathy.academy.search.entities.facets.ValueFacet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -23,21 +27,21 @@ public class SearchServiceImpl implements SearchService {
     public AcademySearchResponse<Movie> getMoviesByTitle(String indexName, String title) throws IOException {
         // Fields in the movies index that contain movie titles
         // Exact match for titles greatly boosted over partial matches
-        String[] fields = {"primaryTitle^8", "primaryTitleNgrams", "originalTitle^8", "originalTitleNgrams", "akas.title^4"};
+        String[] fields = {"primaryTitle^3", "primaryTitleNgrams", "originalTitle^3", "originalTitleNgrams", "akas.title^2"};
         Query titleQuery = queryService.multiMatchQuery(title, fields);
         // Movies and tvseries results are boosted
         String[] boostedTypes = {"movie", "tvSeries"};
-        Query boostMoviesAndSeries = queryService.termsQuery(boostedTypes, "titleType", 2f);
+        Query boostMoviesAndSeries = queryService.termsQuery(boostedTypes, "titleType", 15f);
         // Movies with more than 10k votes are boosted
         int votes = 10000;
-        Query boostPopular = queryService.gteQuery(votes, "numVotes", 2f);
+        Query boostPopular = queryService.gteQuery(votes, "numVotes", 15f);
         List<Query> queries = new ArrayList<>();
         queries.add(titleQuery);
         queries.add(boostMoviesAndSeries);
         queries.add(boostPopular);
 
         Query finalQuery = queryService.shouldQuery(queries);
-        AcademySearchResponse<Movie> movies = elasticService.executeQuery(indexName, finalQuery, 50, null);
+        AcademySearchResponse<Movie> movies = elasticService.executeQuery(indexName, finalQuery, 50);
         return movies;
     }
 
@@ -76,7 +80,7 @@ public class SearchServiceImpl implements SearchService {
             filterPresentQueries.add(query);
         }
 
-        // return only movies with +8k votes for more meaningful results
+        // return only documents with +8k votes for more meaningful results
         Query query = queryService.gteQuery(MIN_VOTES, "numVotes");
         filterPresentQueries.add(query);
 
@@ -86,7 +90,7 @@ public class SearchServiceImpl implements SearchService {
         String sortField = RATING;
         String sortOrder = DESC;
         if (sortCriteria.isPresent()) {
-            String[] sortValues = sortCriteria.get().split(";");
+            String[] sortValues = sortCriteria.get().split("_");
             sortField = sortValues[FIELD];
             sortOrder = sortValues[ORDER];
         }
@@ -94,6 +98,40 @@ public class SearchServiceImpl implements SearchService {
 
         AcademySearchResponse<Movie> movies = elasticService.executeQuery(imdbIndexName, finalQuery, 500, sortOptions);
         return movies;
+    }
+
+    @Override
+    public AcademySearchResponse<Movie> getAggregation(String indexName, String field) throws IOException {
+        ValueFacet facet = getValueFacet(indexName, field);
+
+        List<Facet> facets = new ArrayList<>();
+        facets.add(facet);
+
+        AcademySearchResponse response = new AcademySearchResponse<>(new ArrayList<Movie>(), facets);
+        return response;
+    }
+
+    @Override
+    public ValueFacet getValueFacet(String indexName, String field) throws IOException {
+        Query matchAllQuery = queryService.matchAllQuery();
+
+        Aggregation fieldAgg = queryService.getAggregation(100, field);
+        Map<String, Aggregation> aggs = new HashMap<>();
+        aggs.put(field, fieldAgg);
+
+        SearchResponse<Movie> queryResponse = elasticService.executeQuery(indexName, matchAllQuery, 0, aggs);
+        List<Value> values = new ArrayList<>();
+        List<StringTermsBucket> buckets = queryResponse.aggregations().get(field).sterms().buckets().array();
+        for (StringTermsBucket bucket : buckets) {
+            values.add(new Value(bucket.key().stringValue(), bucket.key().stringValue(), bucket.docCount(),
+                    field + ":" + bucket.key().stringValue()));
+        }
+
+        // Capitalize field name first letter to properly compose facet name
+        String fieldFirstUpperCase = field.substring(0, 1).toUpperCase() + field.substring(1);
+        ValueFacet facetField = new ValueFacet("facet" + fieldFirstUpperCase, values);
+
+        return facetField;
     }
 
     private final static String GENRES = "genres";
