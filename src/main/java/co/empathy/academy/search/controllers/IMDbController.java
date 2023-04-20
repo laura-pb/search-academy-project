@@ -2,12 +2,14 @@ package co.empathy.academy.search.controllers;
 
 import co.empathy.academy.search.entities.AcademySearchResponse;
 import co.empathy.academy.search.entities.Movie;
+import co.empathy.academy.search.entities.User;
 import co.empathy.academy.search.services.IndexService;
 import co.empathy.academy.search.services.SearchService;
 import co.empathy.academy.search.util.FileConversion;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.jobrunr.scheduling.BackgroundJob;
@@ -28,6 +30,8 @@ import java.util.Optional;
 @RequestMapping("/movies")
 public class IMDbController {
     private final static String IMDB_INDEX_NAME = "movies";
+    private final static String GENRES = "genres";
+    private final static String TYPES = "titleType";
 
     @Autowired
     private IndexService indexService;
@@ -63,12 +67,81 @@ public class IMDbController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
-    //TODO THIS IS A FIRST BASIC DRAFT JUST TO TEST CONNECTION WITH FRONTEND
-    @Operation(summary = "Get movies that match the provided title. It DOESN'T match exactly")
+
+    @Operation(summary = "Get movies that match the provided title. It DOESN'T match exactly, but boosts exact results")
     @Parameter(name = "title", description = "Title of the searched movie")
-    @GetMapping("/{title}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of all movies that match the query.", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AcademySearchResponse.class))
+            }),
+            @ApiResponse(responseCode = "500", description = "Unexpected problem accessing database", content = @Content)
+    })
+    @GetMapping(value = "/{title}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AcademySearchResponse<Movie>> queryMoviesByTitle(@PathVariable("title") String title) throws IOException {
         AcademySearchResponse<Movie> searchResponse = searchService.getMoviesByTitle(IMDB_INDEX_NAME, title);
         return ResponseEntity.ok(searchResponse);
     }
+
+    @Operation(summary = "Returns movies that meet the provided filters and sorts them according to the given sorting option")
+    @Parameter(name = "genres", description = "List of genres. Movies returned must have at least one genre of the provided ones")
+    @Parameter(name = "types", description = "List of media types (i.e. movie, short, tvSeries...). " +
+            "Media returned must be of one type of the provided ones")
+    @Parameter(name = "minRuntime", description = "Minimum number of minutes that movies must last to be returned")
+    @Parameter(name = "maxRuntime", description = "Maximum number of minutes that movies must last to be returned")
+    @Parameter(name = "minRating", description = "Minimum average rating that movies must have to be returned")
+    @Parameter(name = "minYear", description = "Movies from years prior to minYear won't be returned")
+    @Parameter(name = "maxYear", description = "Movies from years coming after maxYear won't be returned")
+    @Parameter(name = "sortCriteria", description = "Movies will be sorted by the chosen criteria",
+            schema = @Schema(allowableValues = { "startYear_desc", "startYear_asc", "averageRating_desc", "averageRating_asc"}))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of all movies that match given filters.", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AcademySearchResponse.class))
+            }),
+            @ApiResponse(responseCode = "500", description = "Unexpected problem accessing database", content = @Content)
+    })
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AcademySearchResponse<Movie>> filterMovies(@RequestParam("genres") Optional<String[]> genres,
+                                                                     @RequestParam("types") Optional<String[]> types,
+                                                                     @RequestParam("minRuntime") Optional<Integer> minRuntime,
+                                                                     @RequestParam("maxRuntime") Optional<Integer> maxRuntime,
+                                                                     @RequestParam("minRating") Optional<Float> minRating,
+                                                                     @RequestParam("minYear") Optional<Integer> minYear,
+                                                                     @RequestParam("maxYear") Optional<Integer> maxYear,
+                                                                     @RequestParam("sortCriteria") Optional<String> sortCriteria) throws IOException {
+        AcademySearchResponse<Movie> searchResponse = searchService.getMoviesByFilters(IMDB_INDEX_NAME, genres, types,
+                                                        minRuntime, maxRuntime, minRating, minYear, maxYear, sortCriteria);
+        return ResponseEntity.ok(searchResponse);
+    }
+
+    @Operation(summary = "Get an aggregation of all genres available")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Aggregation of all genres", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AcademySearchResponse.class))
+            }),
+            @ApiResponse(responseCode = "500", description = "Unexpected problem accessing database", content = @Content)
+    })
+    @GetMapping(value = "/genres", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AcademySearchResponse<Movie>> getGenres() throws IOException {
+        AcademySearchResponse<Movie> searchResponse = searchService.getAggregation(IMDB_INDEX_NAME, GENRES);
+        return ResponseEntity.ok(searchResponse);
+    }
+
+    @Operation(summary = "Get an aggregation of all types available")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Aggregation of all types", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AcademySearchResponse.class))
+            }),
+            @ApiResponse(responseCode = "500", description = "Unexpected problem accessing database", content = @Content)
+    })
+    @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AcademySearchResponse<Movie>> getTypes() throws IOException {
+        AcademySearchResponse<Movie> searchResponse = searchService.getAggregation(IMDB_INDEX_NAME, TYPES);
+        return ResponseEntity.ok(searchResponse);
+    }
+
+
 }

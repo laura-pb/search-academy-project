@@ -1,5 +1,7 @@
 package co.empathy.academy.search.entities;
 
+import co.empathy.academy.search.entities.facets.Facet;
+
 import java.util.List;
 
 public class AcademySearchResponse<E> {

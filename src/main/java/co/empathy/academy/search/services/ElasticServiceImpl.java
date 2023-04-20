@@ -1,14 +1,18 @@
 package co.empathy.academy.search.services;
 
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.empathy.academy.search.entities.AcademySearchResponse;
 import co.empathy.academy.search.entities.Movie;
 import co.empathy.academy.search.services.elastic.ElasticRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ElasticServiceImpl implements ElasticService {
@@ -36,7 +40,17 @@ public class ElasticServiceImpl implements ElasticService {
     }
 
     @Override
-    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, List<SortOptions> sortOptions) throws IOException {
+    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber) throws IOException {
+        return elasticRequest.executeQuery(indexName, query, maxNumber);
+    }
+
+    @Override
+    public AcademySearchResponse executeQuery(String indexName, Query query, Integer maxNumber, SortOptions sortOptions) throws IOException {
         return elasticRequest.executeQuery(indexName, query, maxNumber, sortOptions);
+    }
+
+    @Override
+    public SearchResponse executeQuery(String indexName, Query query, Integer maxNumber, Map<String, Aggregation> aggregations) throws IOException {
+        return elasticRequest.executeQuery(indexName, query, maxNumber, aggregations);
     }
 }
