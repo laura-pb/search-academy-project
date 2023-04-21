@@ -38,8 +38,10 @@ public interface SearchService {
     AcademySearchResponse<Movie> getMoviesByFilters(String imdbIndexName, Optional<String[]> genres, Optional<String[]> types,
                                                     Optional<Integer> minRuntime, Optional<Integer> maxRuntime,
                                                     Optional<Float> minRating, Optional<Integer> minYear,
-                                                    Optional<Integer> maxYear, Optional<String> sortCriteria) throws IOException;
+                                                    Optional<Integer> maxYear, Optional<String> sortCriteria, Optional<String> title) throws IOException;
     AcademySearchResponse<Movie> getAggregation(String indexName, String field) throws IOException;
 
     ValueFacet getValueFacet(String indexName, String field) throws IOException;
+
+    AcademySearchResponse<Movie> getMovieByTconst(String indexName, String tconst) throws IOException;
 }

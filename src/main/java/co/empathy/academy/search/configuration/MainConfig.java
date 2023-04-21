@@ -2,8 +2,12 @@ package co.empathy.academy.search.configuration;
 
 import co.empathy.academy.search.services.ElasticService;
 import co.empathy.academy.search.services.ElasticServiceImpl;
+import co.empathy.academy.search.services.FavoriteService;
+import co.empathy.academy.search.services.FavoriteServiceImpl;
 import co.empathy.academy.search.services.elastic.ElasticRequest;
 import co.empathy.academy.search.services.elastic.ElasticRequestImpl;
+import co.empathy.academy.search.services.tmdb.TMDBRequest;
+import co.empathy.academy.search.services.tmdb.TMDBRequestImpl;
 import org.jobrunr.jobs.mappers.JobMapper;
 import org.jobrunr.storage.InMemoryStorageProvider;
 import org.jobrunr.storage.StorageProvider;
@@ -23,6 +27,15 @@ public class MainConfig {
     @Bean
     public ElasticService elasticService(ElasticRequest elasticRequest) {
         return new ElasticServiceImpl(elasticRequest);
+    }
+
+    @Bean
+    public TMDBRequest tmdbRequest() { return  new TMDBRequestImpl();
+    }
+
+    @Bean
+    public FavoriteService favoriteService(TMDBRequest tmdbRequest) {
+        return new FavoriteServiceImpl(tmdbRequest);
     }
 
     // JobRunr in-memory data store.

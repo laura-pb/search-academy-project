@@ -16,13 +16,13 @@
         },
         "exact_analyzer": {
           "type": "custom",
-          "tokenizer": "standard",
+          "tokenizer": "keyword",
           "char_filter": [],
           "filter": [
             "lowercase",
             "asciifolding",
-            "word_delimiter",
-            "stop"
+            "stop",
+            "removeNonAlphanumeric"
           ]
         }
       },
@@ -31,6 +31,11 @@
           "type": "ngram",
           "min_gram": "3",
           "max_gram": "4"
+        },
+        "removeNonAlphanumeric": {
+          "pattern": "[^\\p{L}\\p{Nd}\\{\" \"}]",
+          "type": "pattern_replace",
+          "replacement": ""
         }
       }
     }

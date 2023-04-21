@@ -1,10 +1,7 @@
 package co.empathy.academy.search.controllers;
 
 import co.empathy.academy.search.entities.error.ErrorData;
-import co.empathy.academy.search.exceptions.FileReadingException;
-import co.empathy.academy.search.exceptions.InvalidJsonFileException;
-import co.empathy.academy.search.exceptions.UserAlreadyExistsException;
-import co.empathy.academy.search.exceptions.UserNotFoundException;
+import co.empathy.academy.search.exceptions.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.io.IOException;
 
 
 @ControllerAdvice
@@ -32,9 +31,15 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorData);
     }
 
-    @ExceptionHandler(FileReadingException.class)
+    @ExceptionHandler({FileReadingException.class, IOException.class})
     protected ResponseEntity<Object> handleInvalidFileData(FileReadingException ex, WebRequest wr) {
         ErrorData errorData = new ErrorData(ex.getMessage(), wr.getDescription(false), BAD_REQUEST);
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, wr);
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, wr);
+    }
+
+    @ExceptionHandler(NotAvailableDaily.class)
+    protected ResponseEntity<Object> handleNotAvailableDaily(NotAvailableDaily ex, WebRequest wr) {
+        ErrorData errorData = new ErrorData(ex.getMessage(), wr.getDescription(false), BAD_REQUEST);
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, wr);
     }
 }
