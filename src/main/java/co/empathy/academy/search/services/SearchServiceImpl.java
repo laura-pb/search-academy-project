@@ -140,11 +140,20 @@ public class SearchServiceImpl implements SearchService {
         return facetField;
     }
 
+    @Override
+    public AcademySearchResponse<Movie> getMovieByTconst(String indexName, String tconst) throws IOException {
+        Query exactMatchQuery = queryService.matchQuery(tconst, TCONST);
+
+        AcademySearchResponse<Movie> movies = elasticService.executeQuery(indexName, exactMatchQuery, 1);
+        return movies;
+    }
+
     private final static String GENRES = "genres";
     private final static String TYPES = "titleType";
     private final static String RUNTIME = "runtimeMinutes";
     private final static String RATING = "averageRating";
     private final static String YEAR = "startYear";
+    private final static String TCONST = "tconst";
 
     private final static int FIELD = 0;
     private final static int ORDER = 1;

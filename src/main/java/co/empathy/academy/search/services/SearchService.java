@@ -42,4 +42,6 @@ public interface SearchService {
     AcademySearchResponse<Movie> getAggregation(String indexName, String field) throws IOException;
 
     ValueFacet getValueFacet(String indexName, String field) throws IOException;
+
+    AcademySearchResponse<Movie> getMovieByTconst(String indexName, String tconst) throws IOException;
 }
