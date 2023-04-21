@@ -42,55 +42,59 @@ public class IMDbParser {
         while (movieNumber < batchSize && (movieData = basicsReader.readLine()) != null) {
             Movie movie = parseMovie(movieData);
 
-            //RATING
-            while (prevRating != null && lowerMovieID(prevRating.getMovieId(), movie.getTconst())) {
-                prevRating = parseRating(ratingsReader.readLine());
-            }
-            if (prevRating != null && prevRating.getMovieId().equals(movie.getTconst())) {
-                movie.setAverageRating(prevRating.getRating());
-                movie.setNumVotes(prevRating.getNumVotes());
-                prevRating = parseRating(ratingsReader.readLine());
-            }
+            // don't index adult movies
+            if(!movie.isAdult()) {
 
-            //AKAS
-            List<Aka> akas = new ArrayList<>();
+                //RATING
+                while (prevRating != null && lowerMovieID(prevRating.getMovieId(), movie.getTconst())) {
+                    prevRating = parseRating(ratingsReader.readLine());
+                }
+                if (prevRating != null && prevRating.getMovieId().equals(movie.getTconst())) {
+                    movie.setAverageRating(prevRating.getRating());
+                    movie.setNumVotes(prevRating.getNumVotes());
+                    prevRating = parseRating(ratingsReader.readLine());
+                }
 
-            while (prevAka != null && lowerMovieID(prevAka.getMovieId(), movie.getTconst())) {
-                prevAka = parseAka(akasReader.readLine());
-            }
-            while (prevAka != null && prevAka.getMovieId().equals(movie.getTconst())) {
-                akas.add(prevAka);
-                prevAka = parseAka(akasReader.readLine());
-            }
-            if (!akas.isEmpty()) {
-                movie.setAkas(akas);
-            }
+                //AKAS
+                List<Aka> akas = new ArrayList<>();
 
-            //DIRECTORS
-            while (prevDirectors != null && lowerMovieID(prevDirectorMovieId, movie.getTconst())) {
-                prevDirectors = parseDirectors(crewReader.readLine());
-            }
-            if (prevDirectors != null && prevDirectorMovieId.equals(movie.getTconst())) {
-                movie.setDirectors(prevDirectors);
-                prevDirectors = parseDirectors(crewReader.readLine());
-            }
+                while (prevAka != null && lowerMovieID(prevAka.getMovieId(), movie.getTconst())) {
+                    prevAka = parseAka(akasReader.readLine());
+                }
+                while (prevAka != null && prevAka.getMovieId().equals(movie.getTconst())) {
+                    akas.add(prevAka);
+                    prevAka = parseAka(akasReader.readLine());
+                }
+                if (!akas.isEmpty()) {
+                    movie.setAkas(akas);
+                }
 
-            //STARRING
-            List<Principal> starring = new ArrayList<>();
+                //DIRECTORS
+                while (prevDirectors != null && lowerMovieID(prevDirectorMovieId, movie.getTconst())) {
+                    prevDirectors = parseDirectors(crewReader.readLine());
+                }
+                if (prevDirectors != null && prevDirectorMovieId.equals(movie.getTconst())) {
+                    movie.setDirectors(prevDirectors);
+                    prevDirectors = parseDirectors(crewReader.readLine());
+                }
 
-            while (prevPrincipal != null && lowerMovieID(prevPrincipal.getMovieId(), movie.getTconst())) {
-                prevPrincipal = parsePrincipal(principalsReader.readLine());
-            }
-            while (prevPrincipal != null && prevPrincipal.getMovieId().equals(movie.getTconst())) {
-                starring.add(prevPrincipal);
-                prevPrincipal = parsePrincipal(principalsReader.readLine());
-            }
-            if (!starring.isEmpty()) {
-                movie.setStarring(starring);
-            }
+                //STARRING
+                List<Principal> starring = new ArrayList<>();
 
-            movies.add(movie);
-            movieNumber++;
+                while (prevPrincipal != null && lowerMovieID(prevPrincipal.getMovieId(), movie.getTconst())) {
+                    prevPrincipal = parsePrincipal(principalsReader.readLine());
+                }
+                while (prevPrincipal != null && prevPrincipal.getMovieId().equals(movie.getTconst())) {
+                    starring.add(prevPrincipal);
+                    prevPrincipal = parsePrincipal(principalsReader.readLine());
+                }
+                if (!starring.isEmpty()) {
+                    movie.setStarring(starring);
+                }
+
+                movies.add(movie);
+                movieNumber++;
+            }
         }
 
         batchNumber++;
