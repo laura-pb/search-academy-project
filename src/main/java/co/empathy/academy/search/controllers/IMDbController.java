@@ -150,13 +150,24 @@ public class IMDbController {
     }
 
     @Operation(summary = "Add a new movie to session favorite movies")
+        @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Movie added", content = @Content),
+    })
     @PostMapping(value = "/favorites/{movieId}")
     public ResponseEntity addFavoriteMovie(@PathVariable String movieId, HttpServletRequest request) throws IOException, InterruptedException {
         favoriteService.addFavoriteMovie(movieId, request.getSession());
         return ResponseEntity.status(HttpStatus.CREATED).body("Movie added to favorites");
     }
-
-    @GetMapping(value = "/daily")
+    
+    @Operation(summary = "Obtain daily recommended movie based on session likes")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Daily movie", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AcademySearchResponse.class))
+            }),
+            @ApiResponse(responseCode = "400", description = "Not enough movies to give a recommendation", content = @Content)
+    })
+    @GetMapping(value = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AcademySearchResponse<Movie>> getDailyMovie(HttpServletRequest request) throws IOException, InterruptedException {
         AcademySearchResponse<Movie> daily = favoriteService.getDaily(request.getSession(), IMDB_INDEX_NAME);
         return ResponseEntity.ok(daily);
