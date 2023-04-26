@@ -27,7 +27,7 @@ public class SearchServiceImpl implements SearchService {
     public AcademySearchResponse<Movie> getMoviesByTitle(String indexName, String title) throws IOException {
         // Fields in the movies index that contain movie titles
         // Exact match for titles greatly boosted over partial matches
-        String[] fields = {"primaryTitle^3", "primaryTitleNgrams", "originalTitle^3", "originalTitleNgrams", "akas.title^2"};
+        String[] fields = {"primaryTitle^8", "primaryTitleNgrams", "originalTitle^8", "originalTitleNgrams", "akas.title"};
         Query titleQuery = queryService.multiMatchQuery(title, fields);
         // Movies and tvseries results are boosted
         String[] boostedTypes = {"movie", "tvSeries"};
@@ -81,12 +81,12 @@ public class SearchServiceImpl implements SearchService {
         }
 
         if (title.isPresent()) {
-            String[] fields = {"primaryTitle^3", "primaryTitleNgrams", "originalTitle^3", "originalTitleNgrams", "akas.title^2"};
+            String[] fields = {"primaryTitle^8", "originalTitle^8"};
             Query query = queryService.multiMatchQuery(title.get(), fields);
             filterPresentQueries.add(query);
         }
 
-        // return only documents with +8k votes for more meaningful results
+        // return only documents with +6k votes for more meaningful results
         Query query = queryService.gteQuery(MIN_VOTES, "numVotes");
         filterPresentQueries.add(query);
 
@@ -159,5 +159,5 @@ public class SearchServiceImpl implements SearchService {
     private final static int ORDER = 1;
     private final static String DESC = "desc";
 
-    private final int MIN_VOTES = 8000;
+    private final int MIN_VOTES = 6000;
 }

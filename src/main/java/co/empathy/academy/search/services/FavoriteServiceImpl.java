@@ -53,7 +53,7 @@ public class FavoriteServiceImpl implements FavoriteService {
                 int id = movie.getInt("id");
                 if(sessionRecommendedMovies.containsKey(id)) {
                     sessionRecommendedMovies.get(id).incrementOcurrences();
-                } else if (sessionPastDailys.contains(id)){
+                } else if (sessionPastDailys != null && sessionPastDailys.contains(id)){
                     // Movie already was a daily movie
                 } else {
                     sessionRecommendedMovies.put(id, new RecommendedMovie(id, movie.getDouble("vote_average")));
