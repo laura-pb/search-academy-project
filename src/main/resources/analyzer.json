@@ -29,8 +29,8 @@
       "filter": {
         "custom_ngram": {
           "type": "ngram",
-          "min_gram": "3",
-          "max_gram": "4"
+          "min_gram": "4",
+          "max_gram": "5"
         },
         "removeNonAlphanumeric": {
           "pattern": "[^\\p{L}\\p{Nd}\\{\" \"}]",

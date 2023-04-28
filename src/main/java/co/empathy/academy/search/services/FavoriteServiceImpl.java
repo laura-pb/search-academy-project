@@ -46,6 +46,7 @@ public class FavoriteServiceImpl implements FavoriteService {
             }
 
             List<Integer> sessionPastDailys = (List<Integer>) session.getAttribute(SESSION_PAST_DAILYS);
+            // obtain and store recommended movies based on faved movie as it is added to save time when computing daily movie
             JSONArray movieRecommendations = tmdbRequest.getMovieRecommendations(tmdbId);
             Iterator iterator = movieRecommendations.iterator();
             while (iterator.hasNext()) {
@@ -128,5 +129,5 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final static String SESSION_DATE = "session_date";
     private final static String SESSION_DAILY = "session_daily";
     private final static String SESSION_PAST_DAILYS = "session_past_dailys";
-    private final static String SESSION_RECOMMENDED = "session_recommended";
+    private final static String SESSION_RECOMMENDED = "session_recommended"; //potential daily movies
 }

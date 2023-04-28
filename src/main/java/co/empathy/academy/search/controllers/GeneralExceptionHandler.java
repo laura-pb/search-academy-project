@@ -19,18 +19,6 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     private final String REPEATED_CODE = "409";
     private final String BAD_REQUEST = "400";
 
-    @ExceptionHandler(UserNotFoundException.class)
-    protected ResponseEntity<Object> handleUserNotFound(UserNotFoundException ex, WebRequest wr) {
-        ErrorData errorData = new ErrorData(ex.getMessage(), wr.getDescription(false), NOT_FOUND_CODE);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorData);
-    }
-
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    protected ResponseEntity<Object> handleUserAlreadyExists(UserAlreadyExistsException ex, WebRequest wr) {
-        ErrorData errorData = new ErrorData(ex.getMessage(), wr.getDescription(false), REPEATED_CODE);
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorData);
-    }
-
     @ExceptionHandler({FileReadingException.class, IOException.class})
     protected ResponseEntity<Object> handleInvalidFileData(FileReadingException ex, WebRequest wr) {
         ErrorData errorData = new ErrorData(ex.getMessage(), wr.getDescription(false), BAD_REQUEST);
